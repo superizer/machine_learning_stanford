@@ -23,7 +23,7 @@ grad = zeros(size(theta));
 for i = 1:m,
     hi = sigmoid(dot(X(i,:),theta));
     J = J - y(i)*log(hi) - (1 - y(i))*log(1-hi);
-    for j = 1:3,
+    for j = 1:size(theta),
         grad(j) = grad(j) + (hi - y(i))*X(i,j);
     end;
 end;
