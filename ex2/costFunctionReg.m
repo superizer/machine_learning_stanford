@@ -20,27 +20,23 @@ grad = zeros(size(theta));
 for i = 1:m,
     hi = sigmoid(dot(X(i,:),theta));
     J = J - y(i)*log(hi) - (1 - y(i))*log(1-hi);
-    %for j = 1:size(theta),
-    %    grad(j) = grad(j) + (hi - y(i))*X(i,j);
-    %end;
+    for j = 1:size(theta),
+        grad(j) = grad(j) + (hi - y(i))*X(i,j);
+    end;
 end;
 
-H = X'.*theta
-J = sum(y*log(H)- (1-y)*log(1-H)) + sum(theta(2:end).^2);
-%grad = sum((H-y))
+sum_theta_sq = 0;
 
-%sum_theta_sq = 0;
+for i = 2:size(theta),
+    sum_theta_sq = sum_theta_sq + theta(i).^2;
+end;
 
-%for i = 2:size(theta),
-%    sum_theta_sq = sum_theta_sq + theta(i).^2;
-%end;
+J = J/m + lambda/2/m*sum_theta_sq;
+grad = grad./m; 
 
-%J = J/m + lambda/2/m*sum_theta_sq;
-%grad = grad./m; 
-
-%for i = 2:size(theta),
-%    grad(i) = grad(i) + lambda*theta(i)/m; 
-%end;
+for i = 2:size(theta),
+    grad(i) = grad(i) + lambda*theta(i)/m; 
+end;
 
 % =============================================================
 
