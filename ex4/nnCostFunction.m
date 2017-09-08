@@ -30,6 +30,7 @@ J = 0;
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
 
+
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
 %               following parts.
@@ -63,10 +64,12 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 X = [ones(m, 1) X];
-a2 = sigmoid(Theta1*X');
+z2 = Theta1*X';
+a2 = sigmoid(z2);
 a2 = a2';
 a2 = [ones(size(a2,1),1) a2];
-a3 = sigmoid(a2*Theta2');
+z3 = a2*Theta2';
+a3 = sigmoid(z3);
 
 y = y == 1:num_labels;
 H = a3;
@@ -79,17 +82,23 @@ end;
 J = J/m;
 
 
-J = J + lambda*(sum(sum(Theta1.^2)) + sum(sum(Theta2.^2)))/2/m;
+J = J + lambda*(sum(sum(Theta1(:, 2:end).^2)) + sum(sum(Theta2(:, 2:end).^2)))/2/m;
 
 
 
+delta3 = a3 - y;
 
+delta2 = (Theta2' * delta3' .* sigmoidGradient([ones(1,size(z2,2)); z2]));
 
+% ignore bias terms (:,1)
+delta2 = delta2(2:end,:);
 
+Delta2 = delta3' * a2;
+a1 = X;
+Delta1 = delta2 * a1;
 
-
-
-
+Theta1_grad = 1 / m * Delta1 + lambda / m * [zeros(1, size(Theta1,2)) ; Theta1(2:end,:)];
+Theta2_grad = 1 / m * Delta2 + lambda / m * [zeros(1, size(Theta2,2)) ; Theta2(2:end,:)];
 
 
 
