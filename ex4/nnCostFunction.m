@@ -63,46 +63,74 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
-X = [ones(m, 1) X];
-z2 = Theta1*X';
+% K is the number of classes.
+K = num_labels;
+Y = y == 1:K;
+
+% Part 1 - Forward Feed and Cost Function
+
+a1 = [ones(m, 1), X];
+
+z2 = a1 * Theta1';
 a2 = sigmoid(z2);
-a2 = a2';
-a2 = [ones(size(a2,1),1) a2];
-z3 = a2*Theta2';
+a2 = [ones(size(a2, 1), 1), a2];
+
+z3 = a2 * Theta2';
 a3 = sigmoid(z3);
 
-y = y == 1:num_labels;
-H = a3;
+% Cost (summation over all training example and all classes)
+cost = sum((-Y .* log(a3)) - ((1 - Y) .* log(1 - a3)), 2);
+J = (1 / m) * sum(cost);
+%J = (1 / m) * sum((-Y .* log(a3)) - ((1 - Y) .* log(1 - a3)));
 
 
-for i=1:m,
-    J = J - y(i,:)*log(H(i,:))'- (1-y(i,:))*log(1-H(i,:))';
-end;
+% Part 1.4 - Regularized cost function
+Theta1NoBias = Theta1(:, 2:end);
+Theta2NoBias = Theta2(:, 2:end);
 
-J = J/m;
-
-
-J = J + lambda*(sum(sum(Theta1(:, 2:end).^2)) + sum(sum(Theta2(:, 2:end).^2)))/2/m;
-
-
-
-delta3 = a3 - y;
-
-delta2 = (Theta2' * delta3' .* sigmoidGradient([ones(1,size(z2,2)); z2]));
-
-% ignore bias terms (:,1)
-delta2 = delta2(2:end,:);
-
-Delta2 = delta3' * a2;
-a1 = X;
-Delta1 = delta2 * a1;
-
-Theta1_grad = 1 / m * Delta1 + lambda / m * [zeros(1, size(Theta1,2)) ; Theta1(2:end,:)];
-Theta2_grad = 1 / m * Delta2 + lambda / m * [zeros(1, size(Theta2,2)) ; Theta2(2:end,:)];
-
-
+% Note: Using the sumsq here I found via Google which should
+% be equivalent to sum(term .^ 2);
+reg  = (lambda / (2 * m)) * (sum(sum(Theta1NoBias.^2)) + sum(sum(Theta2NoBias.^2)));
+J = J + reg;
 
 % -------------------------------------------------------------
+
+% Part 2 - Backpropagation
+
+% Delta(l) values
+Delta1 = 0;
+Delta2 = 0;
+
+for t = 1:m
+	% Step 1 - Input Values
+	a1 = [1; X(t, :)']; % Including Bias
+	z2 = Theta1 * a1;
+	a2 = [1; sigmoid(z2)]; % Including Bias
+
+	z3 = Theta2 * a2;
+	a3 = sigmoid(z3);
+
+	% Step 2 - Delta Output Layer
+	d3 = a3 - Y(t, :)';
+	
+	% Step 3 - Delta Hidden Layer
+	d2 = (Theta2NoBias' * d3) .* sigmoidGradient(z2);
+
+	% Step 4 - Accumulate
+	Delta2 = Delta2 + (d3 * a2');
+	Delta1 = Delta1 + (d2 * a1');
+end
+
+% Step 5 - Normal Gradient
+Theta1_grad = (1 / m) * Delta1;
+Theta2_grad = (1 / m) * Delta2;
+
+% -------------------------------------------------------------
+
+% Part 3 - Regularized Gradient
+
+Theta1_grad(:, 2:end) = Theta1_grad(:, 2:end) +  ((lambda / m) * Theta1NoBias);
+Theta2_grad(:, 2:end) = Theta2_grad(:, 2:end) + ((lambda / m) * Theta2NoBias);
 
 % =========================================================================
 

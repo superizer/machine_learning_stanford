@@ -174,7 +174,6 @@ fprintf(['\n\nCost at (fixed) debugging parameters (w/ lambda = %f): %f ' ...
 fprintf('Program paused. Press enter to continue.\n');
 %pause;
 
-%{
 %% =================== Part 8: Training NN ===================
 %  You have now implemented all the code necessary to train a neural 
 %  network. To train your neural network, we will now use "fmincg", which
@@ -234,4 +233,4 @@ pred = predict(Theta1, Theta2, X);
 
 fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == y)) * 100);
 
-%}
+
