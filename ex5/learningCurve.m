@@ -52,8 +52,6 @@ error_val   = zeros(m, 1);
 %
 
 % ---------------------- Sample Solution ----------------------
-theta = [1 ; 1];
-grad = zeros(size(theta));
 
 for i = 1:m
     [theta] = trainLinearReg(X(1:i,:), y(1:i), lambda);
